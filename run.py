@@ -27,7 +27,7 @@ class Game:
        windows.append(wC)
        console = []
        cField = ''
-       pChars = ['q','w','e','r','t','y','u','i','o','p','a','s','d','f','g','h','j','k','l','z','x','c','v','b','n','m',',','.','!','1','2','3','4','5','6','7','8','9','0',' ','Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M']
+       pChars = ['q','w','e','r','t','y','u','i','o','p','a','s','d','f','g','h','j','k','l','z','x','c','v','b','n','m',',','.','!','1','2','3','4','5','6','7','8','9','0',' ']
 
        wAPC = Window(height=120, width=200, title="APC")
        wAPC["wAPCP"] = 0
@@ -52,10 +52,13 @@ class Game:
               lB1 = 0
               B1 = 0
               while(self.run):
-                     print(self.sC)
                      for e in pygame.event.get():
                             if(e.type == pygame.QUIT):
                                    self.run = 0
+                                   sys.exit()
+                            if(e.type == pygame.KEYDOWN):
+                                   self.pressButton(e.key, chr(e.key))
+
                      lB1 = B1
                      B1 = pygame.mouse.get_pressed()[0]
                      pos = pygame.mouse.get_pos()
@@ -173,17 +176,16 @@ class Game:
                             w.x = x - w.dx
                             w.y = y - w.dy
               self.sC = True
-       def pressButton(self, e):
+       def pressButton(self, keyCode, char):
               if(self.wC.click):
-                     print(e)
-                     if(e.keycode == 13):
+                     if(keyCode == 13):
                             self.console.append(self.cField)
                             self.cField = ''
-                     elif(e.keycode == 8):
+                     elif(keyCode == 8):
                              self.cField=self.cField[:-1]
-                     elif(e.char in self.pChars):
-                            self.cField+=e.char
-              if(e.keycode==27):
+                     elif(char in self.pChars):
+                            self.cField+=char
+              if(keyCode==27):
                      self.run = 0
                      sys.exit(0)
                      exit(0)
