@@ -1,7 +1,9 @@
 
 
+
 class Window:
 	see = True
+	cBD = 0 #can be delete
 
 	click = 0
 	move = False
@@ -22,4 +24,7 @@ class Window:
 	def __setitem__(self, key, value):
 		self.__dict__[key] = value
 	def __getitem__(self, key):
-		return self.__dict__[key]
+		try:
+			return self.__dict__[key]
+		except:
+			return None
