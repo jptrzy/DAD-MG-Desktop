@@ -34,6 +34,15 @@ class Game:
 
        run = 1
 
+       def nHCW(self, c):
+              nW = Window(title=c.imie, width=200, height=200, cBD=1)
+              nW['character'] = c
+              self.windows.append(nW)
+
+       nW = Window(height=120, width=200, title="APC")
+       nW['list'] = [playerHaracters,0,nHCW]
+       windows.append(nW)
+
        def loadHaracters(self, path):
               tab = []
               for i in [f for f in os.listdir(path) if f.endswith('.json')]:
@@ -88,7 +97,10 @@ class Game:
                      if(w.cBD):
                             drawRect(w.x+10, w.y-20, 10, 20, '#ff0000')
 
-                     if(w == self.wAPC):
+                     if(w['list'] !=  None):
+                            li, pa, fu = w['list']
+                            print(li, pa, fu)
+                     elif(w == self.wAPC):
                             for i in range(0,5):
                                    if(len(self.playerHaracters) > i+5*self.wAPC["wAPCP"]):
                                           drawRect(self.wAPC.x, self.wAPC.y+20*i, w.width, 20, '#0000ff')
