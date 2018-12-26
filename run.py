@@ -1,7 +1,7 @@
 
 from engine import *
 from classes import *
-import threading, time, sys, json, os, pygame
+import threading, time, sys, json, os, pygame, random
 
 print('run')
 pygame.init()
@@ -18,10 +18,6 @@ class Game:
        screen = pygame.display.set_mode((width,height))
 
        windows = []
-
-       ck = Window(cBD=1)
-       ck['character'] = Character()
-       windows.append(ck)
 
        wC = Window(height=200, width=200, title="Console")
        windows.append(wC)
@@ -70,6 +66,10 @@ class Game:
                             self.B1Up(pos[0], pos[1])
 
        def draw(self):
+
+              hCI = pygame.image.load('data/textures/HC.png')
+              hCIx1 = pygame.transform.scale(hCI, hCI.get_rect().size)
+
               def drawRect(x,y,width,height,fill):
                      pygame.draw.rect(self.screen, pygame.Color(fill), pygame.Rect(x,y,width,height))
               def drawText(x, y, font, size, text, color, bGColor):
@@ -92,7 +92,7 @@ class Game:
                             for i in range(0,5):
                                    if(len(self.playerHaracters) > i+5*self.wAPC["wAPCP"]):
                                           drawRect(self.wAPC.x, self.wAPC.y+20*i, w.width, 20, '#0000ff')
-                                          drawText(self.wAPC.x, self.wAPC.y+20*i, "Times", 17, self.playerHaracters[i+5*self.wAPC["wAPCP"]].name, "#ffffff", "#0000ff")
+                                          drawText(self.wAPC.x, self.wAPC.y+20*i, "Times", 17, self.playerHaracters[i+5*self.wAPC["wAPCP"]].imie, "#ffffff", "#0000ff")
                             drawRect(self.wAPC.x, self.wAPC.y+self.wAPC.height-20, 20, 20, '#ff0000')
                             drawRect(self.wAPC.x+self.wAPC.width-20, self.wAPC.y+self.wAPC.height-20, 20, 20, '#ff0000')
                      elif(w == self.wC):
@@ -100,11 +100,8 @@ class Game:
                                    drawText(w.x, w.y+20*i,"Times", 17, v, "#ffffff", None)
                             drawText(w.x, w.y+w.height-20,"Times", 17, self.cField+"|", "#ffffff", None)
                      elif(w["character"] != None):
-                            for i, v in enumerate([attr for attr in dir(w["character"]) if not callable(getattr(w["character"], attr)) and not attr.startswith("__")]):
-                                   drawText(w.x+1, w.y+20*i,"Times", 17, (v +" "+ w["character"][v]), "#ffffff", None)
-
-
-
+                            for v in w['character']['box']:
+                                   drawText(w.x+v[0], w.y+v[1],"Times", 17, (v[3] +" "+ w["character"][v[3]])[:v[2]], "#ffffff", None)
               while(self.run):
                      self.screen.fill((0,0,0))
                      if(self.sC):
@@ -125,7 +122,6 @@ class Game:
        def B1Down(self, x, y):
               def end():
                      self.sC = True
-                     print(self.sC)
                      return 0
 
               for ww in self.windows:
@@ -156,12 +152,8 @@ class Game:
                                           return end()
                                    for i in range(0,5):
                                           if(len(self.playerHaracters) > i+5*w["wAPCP"] and y>w.y+20*i and y<w.y+20*(i+1)):
-                                                 nW = Window(title=self.playerHaracters[w["wAPCP"]*5+i].name, width=200, height=200, cBD=1)
+                                                 nW = Window(title=self.playerHaracters[w["wAPCP"]*5+i].imie, width=200, height=200, cBD=1)
                                                  nW['character'] = self.playerHaracters[w["wAPCP"]*5+i]
-                                                 tab = []
-                                                 for i, k in enumerate([attr for attr in dir(self.playerHaracters[w["wAPCP"]*5+i]) if not callable(getattr(self.playerHaracters[w["wAPCP"]*5+i], attr)) and not attr.startswith("__")]):
-                                                        tab.append([20*i,20*i,20,200,False,k])
-                                                 nW['Box']=tab
                                                  self.windows.append(nW)
                                                  return end()
                             return end()
@@ -179,7 +171,14 @@ class Game:
        def pressButton(self, keyCode, char):
               if(self.wC.click):
                      if(keyCode == 13):
-                            self.console.append(self.cField)
+                            try:
+
+                                   self.cField.split('d')
+
+                                   self.console.append(str([i for x in range(0,int(self.cField.split('d')[0])) for i in [random.randint(1,int(self.cField.split('d')[1]))]]).split('[')[1].split(']')[0])
+                            except:
+                                   self.console.append(self.cField)
+                            
                             self.cField = ''
                      elif(keyCode == 8):
                              self.cField=self.cField[:-1]
@@ -193,13 +192,7 @@ class Game:
        def __init__(self):
               self.playerHaracters=self.loadHaracters("data/playerHaracters")
 
-              #self.root.bind("<Button-1>", self.ButtonDown)
-              #self.root.bind("<ButtonRelease-1>", self.ButtonUp)
-              #self.root.bind("<B1-Motion>", self.Button1Move)
-              #self.root.bind("<Key>", self.pressButton)
-              
              
               threading.Thread(target=self.draw).start()
-              #threading.Thread(target=self.update).start()
               self.update()
 g = Game()

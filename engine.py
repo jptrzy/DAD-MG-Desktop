@@ -1,5 +1,5 @@
-
-
+data = 'ab'
+print(data[:3])
 
 class Window:
 	see = True
