@@ -25,23 +25,19 @@ class Game:
        cField = ''
        pChars = ['q','w','e','r','t','y','u','i','o','p','a','s','d','f','g','h','j','k','l','z','x','c','v','b','n','m',',','.','!','1','2','3','4','5','6','7','8','9','0',' ']
 
-       wAPC = Window(height=120, width=200, title="APC")
-       wAPC["wAPCP"] = 0
-       windows.append(wAPC)
-
        playerHaracters = []
        nonPlayerHaracters = []
 
        run = 1
 
+       def gPHL(self):
+              self.playerHaracters=self.loadHaracters("data/playerHaracters")
+              return self.playerHaracters
        def nHCW(self, c):
               nW = Window(title=c.imie, width=200, height=200, cBD=1)
               nW['character'] = c
               self.windows.append(nW)
 
-       nW = Window(height=120, width=200, title="APC")
-       nW['list'] = [playerHaracters,0,nHCW]
-       windows.append(nW)
 
        def loadHaracters(self, path):
               tab = []
@@ -98,15 +94,14 @@ class Game:
                             drawRect(w.x+10, w.y-20, 10, 20, '#ff0000')
 
                      if(w['list'] !=  None):
-                            li, pa, fu = w['list']
-                            print(li, pa, fu)
-                     elif(w == self.wAPC):
+                            li, liFun, pa, fu = w['list']
+
                             for i in range(0,5):
-                                   if(len(self.playerHaracters) > i+5*self.wAPC["wAPCP"]):
-                                          drawRect(self.wAPC.x, self.wAPC.y+20*i, w.width, 20, '#0000ff')
-                                          drawText(self.wAPC.x, self.wAPC.y+20*i, "Times", 17, self.playerHaracters[i+5*self.wAPC["wAPCP"]].imie, "#ffffff", "#0000ff")
-                            drawRect(self.wAPC.x, self.wAPC.y+self.wAPC.height-20, 20, 20, '#ff0000')
-                            drawRect(self.wAPC.x+self.wAPC.width-20, self.wAPC.y+self.wAPC.height-20, 20, 20, '#ff0000')
+                                   if(len(li) > i+5*pa):
+                                          drawRect(w.x, w.y+20*i, w.width, 20, '#0000ff')
+                                          drawText(w.x, w.y+20*i, "Times", 17, li[i+5*pa].imie, "#ffffff", "#0000ff")
+                            drawRect(w.x, w.y+w.height-20, 20, 20, '#ff0000')
+                            drawRect(w.x+w.width-20, w.y+w.height-20, 20, 20, '#ff0000')
                      elif(w == self.wC):
                             for i, v in enumerate(self.console):
                                    drawText(w.x, w.y+20*i,"Times", 17, v, "#ffffff", None)
@@ -153,21 +148,21 @@ class Game:
                             return end()
                      elif(x>w.x and x<w.x+w.width and y>w.y and y<w.y+w.height):
                             w.click = 1
-                            if(w == self.wAPC):
+                            if(w['list']!=None):
+                                   li, liFun, pa, fu = w['list']
                                    if(x>w.x and x<w.x+20 and y>w.y+w.height-20 and y<w.y+w.height):
-                                          if(w["wAPCP"]>0):
-                                                 w["wAPCP"]-=1
+                                          if(pa>0):
+                                                 pa-=1
                                           return end()
                                    elif(x>w.x+w.width-20 and x<w.x+w.width and y>w.y+w.height-20 and y<w.y+w.height):
-                                          if((w["wAPCP"]+1)*5<len(self.playerHaracters)):
-                                                 w["wAPCP"]+=1
+                                          if((pa+1)*5<len(li)):
+                                                 pa+=1
                                           return end()
                                    for i in range(0,5):
-                                          if(len(self.playerHaracters) > i+5*w["wAPCP"] and y>w.y+20*i and y<w.y+20*(i+1)):
-                                                 nW = Window(title=self.playerHaracters[w["wAPCP"]*5+i].imie, width=200, height=200, cBD=1)
-                                                 nW['character'] = self.playerHaracters[w["wAPCP"]*5+i]
-                                                 self.windows.append(nW)
+                                          if(len(li) > i+5*pa and y>w.y+20*i and y<w.y+20*(i+1)):
+                                                 fu(li[pa*5+i])
                                                  return end()
+
                             return end()
               return end()
        def B1Up(self,  x, y): 
@@ -201,10 +196,17 @@ class Game:
                      sys.exit(0)
                      exit(0)
               self.sC = 1
-       def __init__(self):
-              self.playerHaracters=self.loadHaracters("data/playerHaracters")
 
-             
-              threading.Thread(target=self.draw).start()
+
+       def __init__(self): 
+
+              nW = Window(height=120, width=200, title="NAPC")
+              nW['list'] = [self.gPHL(),self.gPHL,0,self.nHCW]
+              self.windows.append(nW)
+
+
+              gU=threading.Thread(target=self.draw)
+              gU.daemon = 1
+              gU.start()
               self.update()
 g = Game()
